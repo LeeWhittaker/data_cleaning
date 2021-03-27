@@ -34,20 +34,21 @@ except:
     outfile = infile
 sheet = config['MAIN']['SheetName']
 column = config['MAIN']['ColumnName']
+row = int(config['MAIN']['ColumnNameRow'])
 regex_in = config['MAIN']['CurrentExpression']
 ex_out = config['MAIN']['NewExpression']
 
-df = pd.read_excel(infile, sheet_name=sheet)
+df = pd.read_excel(infile, sheet_name=sheet, skiprows=row-1)
 new_col = df[column].replace(r'%s'%regex_in, r'%s'%ex_out, regex=True)
 
 xfile = openpyxl.load_workbook(infile)
 worksheet = xfile[sheet]
 
-for cell in worksheet[1]:
+for cell in worksheet[row]:
     if cell.value==column:
         col_id = cell.column_letter
         
 for i in range(len(new_col)):
-    worksheet['%s%i' %(col_id, i+2)]=new_col[i]
+    worksheet['%s%i' %(col_id, i+row+1)]=new_col[i]
 
 xfile.save(outfile)
